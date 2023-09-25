@@ -41,3 +41,5 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+          dockerfile: Dockerfile # Specify the path to your Dockerfile if it's not in the root directory
+          context: . # Specify the build context, usually the root directory
