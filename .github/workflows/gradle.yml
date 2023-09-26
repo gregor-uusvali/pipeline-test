@@ -1,12 +1,17 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
 name: Java CI with Gradle
 
 on:
   push:
-    branches:
-      - main
+    branches: ["main"]
   pull_request:
-    branches:
-      - main
+    branches: ["main"]
 
 permissions:
   contents: read
@@ -16,24 +21,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
+      - uses: actions/checkout@v3
+      - name: Run chmod to make gradlew executable
+        run: chmod u+x gradlew
       - name: Set up JDK 11
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
-          java-version: 11
-
+          java-version: "11"
+          distribution: "temurin"
       - name: Build with Gradle
-        run: ./gradlew build
+        uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
+        with:
+          arguments: build
 
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v2
+        uses: mr-smithers-excellent/docker-build-push@v6
         with:
-          context: . # Specify the build context (root directory)
-          dockerfile: Dockerfile # Path to your Dockerfile if not in the root directory
-          push: true
-          tags: docker.io/***/demo-app:main-657c49d
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          image: gregoruusvali/demo-app
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
